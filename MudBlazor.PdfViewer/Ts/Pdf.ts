@@ -9,6 +9,7 @@ export class Pdf {
     public scale: number;
     public rotation: number;
     public url: string;
+    public filename: string;
     public document: PDFDocumentProxy;
 
     public renderInProgress: boolean;
@@ -24,6 +25,7 @@ export class Pdf {
         this.scale = scale;
         this.rotation = rotation;
         this.url = url;
+        this.filename = Pdf.getFilenameFromUrl(url)
         this.document = null;
         this.renderInProgress = false;
         this.singlePageMode = singlePageMode;
@@ -130,5 +132,15 @@ export class Pdf {
 
     private static isDomSupported(): boolean {
         return true;
+    }
+
+    private static getFilenameFromUrl(url: string): string {
+        try {
+            const parsedUrl = new URL(url);
+            const pathSegments = parsedUrl.pathname.split('/');
+            return pathSegments.pop() || 'document.pdf';
+        } catch (error) {
+            return 'document.pdf';
+        }
     }
 }

@@ -74,6 +74,7 @@
                 <MudMenuItem Icon="@Config.Icons.ResetZoom" Label="@Config.Labels.ResetZoom" OnClick="ResetZoomAsync"/>
                 <MudDivider/>
                 <MudMenuItem Icon="@Config.Icons.PrintDocument" Label="@Config.Labels.PrintDocument" OnClick="PrintDocumentAsync"/>
+                <MudMenuItem Icon="@Config.Icons.DownloadDocument" Label="@Config.Labels.DownloadDocument" OnClick="DownloadDocumentAsync"/>
             </MudMenu>
         </MudToolBar>
         @if (_loading)
@@ -134,6 +135,7 @@
                     else
                     {
                         <canvas @ref="_element" id="@_id" style="overflow: auto"></canvas>
+                        <div id="@($"{_id}_text")" class="textLayer"></div>
                     }
                 </div>
 

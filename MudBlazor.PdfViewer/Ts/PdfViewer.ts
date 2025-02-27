@@ -1,6 +1,6 @@
 import {Pdf} from "./Pdf";
-
-import {getDocument, GlobalWorkerOptions} from "pdfjs-dist"
+import {saveAs} from "file-saver"
+import {getDocument, GlobalWorkerOptions, renderTextLayer} from "pdfjs-dist"
 // @ts-ignore
 import printjs from "print-js"
 
@@ -20,7 +20,10 @@ export function init(dotnetReference: any, id: string, documentUrl: string, scal
             renderPdf(pdf);
             renderThumbnails(dotnetReference, pdf);
 
-            dotnetReference.invokeMethodAsync('DocumentLoaded', {pagesCount: pdf.pageCount, pageNumber: pdf.currentPage});
+            dotnetReference.invokeMethodAsync('DocumentLoaded', {
+                pagesCount: pdf.pageCount,
+                pageNumber: pdf.currentPage
+            });
         }).catch((err) => {
             dotnetReference.invokeMethodAsync('PdfViewerError', {name: err.name, message: err.message});
         })
@@ -80,6 +83,7 @@ export function zoom(dotnetReference: any, id: string, scale: number) {
     const pdf = Pdf.getPdf(id)
     pdf.zoom(scale);
     queuePdfRender(pdf, null);
+    document.body.style.setProperty('--scale-factor', `${scale}`);
     if (pdf.singlePageMode) {
         scrollToPage(id, pdf.currentPage);
     }
@@ -142,6 +146,19 @@ export function printDocument(dotnetReference: any, id: string) {
     }
 }
 
+export function downloadDocument(dotnetReference: any, id: string) {
+    const pdf = Pdf.getPdf(id);
+    if (pdf.url) {
+        fetch(pdf.url).then(response => {
+            if (response.ok) {
+                response.blob().then(blob => {
+                    saveAs(blob, pdf.filename ?? 'document.pdf');
+                });
+            }
+        });
+    }
+}
+
 function scrollToPage(id: string, pageNumber: number) {
     const container = document.getElementById(id);
     const targetPage = document.getElementById(`${id}-page-${pageNumber}`);
@@ -183,6 +200,24 @@ function renderPdf(pdf: Pdf) {
             // Wait for rendering to finish
             renderTask.promise.then(() => {
                 pdf.renderInProgress = false;
+
+                // Render text layer
+                const textLayer = document.getElementById(`${pdf.id}_text`);
+                textLayer.replaceChildren();
+                textLayer.style.left = pdf.canvas.offsetLeft + 'px';
+                textLayer.style.top = pdf.canvas.offsetTop + 'px';
+                textLayer.style.height = pdf.canvas.offsetHeight + 'px';
+                textLayer.style.width = pdf.canvas.offsetWidth + 'px';
+
+                pdfPage.getTextContent().then(text => {
+                    renderTextLayer({
+                        textContentSource: text,
+                        container: textLayer,
+                        viewport,
+                        textDivs: []
+                    });
+                })
+
                 if (pdf.queuedPage !== null) {
                     renderPdf(pdf);
                     pdf.queuedPage = null;

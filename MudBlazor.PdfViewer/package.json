@@ -4,8 +4,9 @@
   "description": "A simple PDF viewer component for use with MudBlazor",
   "main": "index.js",
   "scripts": {
-    "ts": "npx esbuild Ts/PdfViewer.ts --bundle --format=esm --target=esnext --outfile=wwwroot/mudpdfviewer.js --keep-names",
-    "css": "npx cleancss -o wwwroot/mudpdf.min.css wwwroot/mudpdf.css"
+    "ts": "npx esbuild Ts/PdfViewer.ts --bundle --format=esm --target=esnext --outfile=wwwroot/mudpdf.js --keep-names",
+    "css": "npx cleancss -o wwwroot/mudpdf.min.css wwwroot/mudpdf.css",
+    "ts-min": "npx uglifyjs wwwroot/mudpdf.js -o wwwroot/mudpdf.min.js "
   },
   "repository": {
     "type": "git",
@@ -25,9 +26,11 @@
   "devDependencies": {
     "clean-css-cli": "^5.6.3",
     "esbuild": "^0.25.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "uglify-js": "^3.19.3"
   },
   "dependencies": {
+    "file-saver": "^2.0.5",
     "pdfjs-dist": "^4.0.379",
     "print-js": "^1.6.0"
   }

@@ -273,6 +273,11 @@ public partial class MudPdfViewer : MudComponentBase
         await PdfInterop.PrintDocumentAsync(_objectReference!, _id!);
     }
 
+    private async Task DownloadDocumentAsync()
+    {
+        await PdfInterop.DownloadDocumentAsync(_objectReference!, _id!);
+    }
+
     private async Task ReloadPdfAsync()
     {
         if (_pdfError is not null && _pdfError.ErrorType == PdfErrorType.PasswordRequired && string.IsNullOrEmpty(_password))
